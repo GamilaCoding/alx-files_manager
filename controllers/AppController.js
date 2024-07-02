@@ -11,5 +11,4 @@ export async function getStats(_, res) {
     'users': await dbClient.nbUsers(),
     'files': await dbClient.nbFiles()
   });
-  res.send();
 }

@@ -1,7 +1,6 @@
 import mongodb from 'mongodb';
 
 class DBClient {
-
   constructor() {
     const host = process.env.DB_HOST || 'localhost';
     const port = process.env.DB_PORT || 27017;
@@ -10,11 +9,11 @@ class DBClient {
 
     this.client = new mongodb.MongoClient(dbURL, { useUnifiedTopology: true });
     this.client.connect()
-    .then(() => {
-      this.db = this.client.db(database);
-    }).catch((err) => {
-      console.log(err);
-    });
+      .then(() => {
+        this.db = this.client.db(database);
+      }).catch((err) => {
+        console.log(err);
+      });
   }
 
   isAlive() {
@@ -22,14 +21,15 @@ class DBClient {
   }
 
   async nbUsers() {
-    return await this.db.collection('users').countDocuments();
+    const returnedValue = await this.db.collection('users').countDocuments();
+    return returnedValue;
   }
 
   async nbFiles() {
-    return await this.db.collection('users').countDocuments();
+    const returnedValue = await this.db.collection('users').countDocuments();
+    return returnedValue;
   }
-
 }
 
-export const dbClient = new DBClient();
+const dbClient = new DBClient();
 module.exports = dbClient;

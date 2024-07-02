@@ -1,8 +1,8 @@
 // eslint-disable-next-line no-unused-vars
 import { Express } from 'express';
 import * as AppController from '../controllers/AppController';
-// import AuthController from '../controllers/AuthController';
-// import UsersController from '../controllers/UsersController';
+import * as AuthController from '../controllers/AuthController';
+import * as UsersController from '../controllers/UsersController';
 // import FilesController from '../controllers/FilesController';
 
 /**
@@ -13,11 +13,11 @@ const injectRoutes = (api) => {
   api.get('/status', AppController.getStatus);
   api.get('/stats', AppController.getStats);
 
-  // api.get('/connect', basicAuthenticate, AuthController.getConnect);
-  // api.get('/disconnect', xTokenAuthenticate, AuthController.getDisconnect);
+  api.get('/connect', AuthController.getConnect);
+  api.get('/disconnect', AuthController.getDisconnect);
 
-  // api.post('/users', UsersController.postNew);
-  // api.get('/users/me', xTokenAuthenticate, UsersController.getMe);
+  api.post('/users', UsersController.postNew);
+  api.get('/users/me', UsersController.getMe);
 
   // api.post('/files', xTokenAuthenticate, FilesController.postUpload);
   // api.get('/files/:id', xTokenAuthenticate, FilesController.getShow);
