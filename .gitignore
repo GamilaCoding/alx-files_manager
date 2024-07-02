@@ -109,3 +109,5 @@ credentials.json
 *secret*
 token.json
 .coveralls.yml
+
+redis-6.0.10/
