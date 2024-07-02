@@ -111,3 +111,5 @@ token.json
 .coveralls.yml
 
 redis-6.0.10/
+venv/
+image.jpg

@@ -36,7 +36,7 @@ export async function getMe(req, res) {
   if (!userId) {
     res.status(401).json({ error: 'Unauthorized' });
   }
-  const user = await dbClient.db.collection('users').findOne({ '_id': ObjectId(userId)})
+  const user = await dbClient.db.collection('users').findOne({ _id: ObjectId(userId) });
   if (!user) {
     res.status(401).json({ error: 'Unauthorized' });
   }

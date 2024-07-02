@@ -26,7 +26,7 @@ class DBClient {
   }
 
   async nbFiles() {
-    const returnedValue = await this.db.collection('users').countDocuments();
+    const returnedValue = await this.db.collection('files').countDocuments();
     return returnedValue;
   }
 }
