@@ -140,3 +140,58 @@ export async function getIndex(req, res) {
 
   return res.status(200).json(queryFilesResult);
 }
+
+export async function putPublish(req, res) {
+  const xToken = req.headers['x-token'];
+  if (!xToken) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const userId = await redisClient.get(`auth_${xToken}`);
+  if (!userId) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const user = await dbClient.db.collection('users').findOne({ _id: ObjectId(userId) });
+  if (!user) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  const file = await dbClient.db.collection('files').findOneAndUpdate({
+    _id: ObjectId(req.params.id),
+    userId: ObjectId(userId),
+  }, {$set: {'isPublic': true}}, { returnDocument: 'after' });
+  if (!file['value']) {
+    return res.status(404).json({ error: 'File not found' });
+  }
+  res.status(200).send(file['value']);
+}
+
+export async function putUnpublish(req, res) {
+  const xToken = req.headers['x-token'];
+  if (!xToken) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const userId = await redisClient.get(`auth_${xToken}`);
+  if (!userId) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const user = await dbClient.db.collection('users').findOne({ _id: ObjectId(userId) });
+  if (!user) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  const file = await dbClient.db.collection('files').findOneAndUpdate({
+    _id: ObjectId(req.params.id),
+    userId: ObjectId(userId),
+  }, {$set: {'isPublic': false}}, { returnDocument: 'after' });
+  if (!file) {
+    return res.status(404).json({ error: 'File not found' });
+  }
+  res.status(200).send(file);
+}
+// curl 0.0.0.0:5000/connect -H "Authorization: Basic Ym9iQGR5bGFuLmNvbTp0b3RvMTIzNCE=" ; echo ""
+// curl -XGET 0.0.0.0:5000/files -H "X-Token: 709428f3-0dfd-401b-9874-5b4b34d29371" ; echo ""
+// 66846a466532e260888e68c4
+// curl -XPUT 0.0.0.0:5000/files/66846a466532e260888e68c4/publish -H "X-Token: 
+// 709428f3-0dfd-401b-9874-5b4b34d29371" ; echo
