@@ -44,7 +44,7 @@ export async function postUpload(req, res) {
     userId: user._id,
     type,
     name,
-    parentId: parentId || 0,
+    parentId: parentId || '0',
     isPublic: isPublic || false,
   };
   if (type !== 'folder') {
@@ -78,11 +78,8 @@ export async function postUpload(req, res) {
     name,
     type,
     isPublic,
-    parentId: parentId || 0,
+    parentId: parentId || '0',
   };
-  if (type !== 'folder') {
-    sendObject.localPath = dataFiles.localPath;
-  }
   return res.status(201).json(sendObject);
 }
 
@@ -108,7 +105,6 @@ export async function getShow(req, res) {
   }
   return res.status(200).json(file);
 }
-// {"id":"5f1e8896c7ba06511e683b25","userId":"5f1e7cda04a394508232559d","name":"image.png","type":"image","isPublic":true,"parentId":"5f1e881cc7ba06511e683b23"}
 export async function getIndex(req, res) {
   const xToken = req.headers['x-token'];
   if (!xToken) {
@@ -125,13 +121,13 @@ export async function getIndex(req, res) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  const { parentId = 0, page = 0 } = req.query;
+  const { parentId = '0', page = 0 } = req.query;
   const pageSize = 20;
   const skip = page * pageSize;
 
   const queryFilesResult = await dbClient.db.collection('files')
     .find({
-      parentId: parentId === 0 ? 0 : ObjectId(parentId),
+      parentId: parentId === '0' ? '0' : ObjectId(parentId),
       userId: ObjectId(userId),
     })
     .skip(skip)
@@ -159,7 +155,7 @@ export async function putPublish(req, res) {
   const updateResult = await dbClient.db.collection('files').findOneAndUpdate({
     _id: ObjectId(req.params.id),
     userId: ObjectId(userId),
-  }, { $set: { isPublic: true } }, { returnDocument: 'after' });
+  }, {$set: { isPublic: true }});
   if (!updateResult.value) {
     return res.status(404).json({ error: 'File not found' });
   }
@@ -168,8 +164,8 @@ export async function putPublish(req, res) {
     userId: updateResult.value.userId,
     name: updateResult.value.name,
     type: updateResult.value.type,
-    isPublic,
-    parentId: updateResult.value.parentId,
+    'isPublic': updateResult.value.isPublic,
+    parentId: updateResult.value.parentId
   };
   return res.status(200).json(file);
 }
@@ -201,9 +197,13 @@ export async function putUnpublish(req, res) {
     userId: updateResult.value.userId,
     name: updateResult.value.name,
     type: updateResult.value.type,
-    isPublic,
-    parentId: updateResult.value.parentId,
+    'isPublic': updateResult.value.isPublic,
+    parentId: updateResult.value.parentId
   };
-
   return res.status(200).json(file);
 }
+// b0af7fb3-c0be-4be6-9669-31853f5cab25
+// curl -XGET 0.0.0.0:5000/files -H "X-Token: b0af7fb3-c0be-4be6-9669-31853f5cab25" ; echo ""
+// curl -XPUT 0.0.0.0:5000/files/66846b43bf859764a71d5ed7/publish -H "X-Token: b0af7fb3-c0be-4be6-9669-31853f5cab25" ; echo ""
+// curl -XPUT 0.0.0.0:5000/files/66846b43bf859764a71d5ed7/unpublish -H "X-Token: b0af7fb3-c0be-4be6-9669-31853f5cab25" ; echo ""
+// curl -XPOST 0.0.0.0:5000/files -H "X-Token: b0af7fb3-c0be-4be6-9669-31853f5cab25" -H "Content-Type: application/json" -d '{ "name": "myText.txt", "type": "file", "data": "SGVsbG8gV2Vic3RhY2shCg==" }' ; echo ""
