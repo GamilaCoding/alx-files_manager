@@ -106,16 +106,9 @@ export async function getShow(req, res) {
   if (!file) {
     return res.status(404).json({ error: 'File not found' });
   }
-  return res.status(200).send({
-    id: file._id,
-    userId: file.userId,
-    type: file.type,
-    name: file.name,
-    parentId: file.parentId,
-    localPath: file.localPath,
-  });
+  return res.status(200).json(file);
 }
-
+// {"id":"5f1e8896c7ba06511e683b25","userId":"5f1e7cda04a394508232559d","name":"image.png","type":"image","isPublic":true,"parentId":"5f1e881cc7ba06511e683b23"}
 export async function getIndex(req, res) {
   const xToken = req.headers['x-token'];
   if (!xToken) {
@@ -163,21 +156,22 @@ export async function putPublish(req, res) {
   if (!user) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
-  const file = await dbClient.db.collection('files').findOneAndUpdate({
+  const updateResult = await dbClient.db.collection('files').findOneAndUpdate({
     _id: ObjectId(req.params.id),
     userId: ObjectId(userId),
   }, { $set: { isPublic: true } }, { returnDocument: 'after' });
-  if (!file.value) {
+  if (!updateResult.value) {
     return res.status(404).json({ error: 'File not found' });
   }
-  return res.status(200).send({
-    id: file._id,
-    userId: file.userId,
-    type: file.type,
-    name: file.name,
-    parentId: file.parentId,
-    localPath: file.localPath,
-  });
+  const file = {
+    id: updateResult.value._id,
+    userId: updateResult.value.userId,
+    name: updateResult.value.name,
+    type: updateResult.value.type,
+    isPublic,
+    parentId: updateResult.value.parentId,
+  };
+  return res.status(200).json(file);
 }
 
 export async function putUnpublish(req, res) {
@@ -195,28 +189,21 @@ export async function putUnpublish(req, res) {
   if (!user) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
-  const file = await dbClient.db.collection('files').findOneAndUpdate({
+  const updateResult = await dbClient.db.collection('files').findOneAndUpdate({
     _id: ObjectId(req.params.id),
     userId: ObjectId(userId),
-  }, { $set: { isPublic: false } }, { returnDocument: 'after' });
-  if (!file) {
+  }, { $set: { isPublic: false } });
+  if (!updateResult.value) {
     return res.status(404).json({ error: 'File not found' });
   }
-  return res.status(200).send({
-    id: file._id,
-    userId: file.userId,
-    type: file.type,
-    name: file.name,
-    parentId: file.parentId,
-    localPath: file.localPath,
-  });
+  const file = {
+    id: updateResult.value._id,
+    userId: updateResult.value.userId,
+    name: updateResult.value.name,
+    type: updateResult.value.type,
+    isPublic,
+    parentId: updateResult.value.parentId,
+  };
+
+  return res.status(200).json(file);
 }
-// curl 0.0.0.0:5000/connect -H "Authorization: Basic Ym9iQGR5bGFuLmNvbTp0b3RvMTIzNCE=" ; echo ""
-// curl -XGET 0.0.0.0:5000/files -H "X-Token: 709428f3-0dfd-401b-9874-5b4b34d29371" ; echo ""
-// 66846a466532e260888e68c4
-// curl -XPUT 0.0.0.0:5000/files/66846a466532e260888e68c4/publish -H "X-Token:
-// 709428f3-0dfd-401b-9874-5b4b34d29371" ; echo
-// curl -XGET 0.0.0.0:5000/files/66846a466532e260888e68c4 -H "X-Token:
-// f21fb953-16f9-46ed-8d9c-84c6450ec80f" ; echo ""
-// curl -XGET 0.0.0.0:5000/files/66846a466532e260888e68c4 -H "X-Token:
-// 709428f3-0dfd-401b-9874-5b4b34d29371" ; echo ""\
