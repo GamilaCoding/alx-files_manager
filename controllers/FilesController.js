@@ -44,7 +44,7 @@ export async function postUpload(req, res) {
     userId: user._id,
     type,
     name,
-    parentId: parentId || '0',
+    parentId: parentId ? ObjectId(parentId) : parentId,
     isPublic: isPublic || false,
   };
   if (type !== 'folder') {
@@ -78,7 +78,7 @@ export async function postUpload(req, res) {
     name,
     type,
     isPublic,
-    parentId: parentId || '0',
+    parentId
   };
   return res.status(201).json(sendObject);
 }
