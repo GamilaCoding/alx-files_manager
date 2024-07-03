@@ -106,7 +106,14 @@ export async function getShow(req, res) {
   if (!file) {
     return res.status(404).json({ error: 'File not found' });
   }
-  return res.status(200).json(file);
+  return res.status(200).send({
+    id: file._id,
+    userId: file.userId,
+    type: file.type,
+    name: file.name,
+    parentId: file.parentId,
+    localPath: file.localPath,
+  });
 }
 
 export async function getIndex(req, res) {
@@ -159,11 +166,18 @@ export async function putPublish(req, res) {
   const file = await dbClient.db.collection('files').findOneAndUpdate({
     _id: ObjectId(req.params.id),
     userId: ObjectId(userId),
-  }, {$set: {'isPublic': true}}, { returnDocument: 'after' });
-  if (!file['value']) {
+  }, { $set: { isPublic: true } }, { returnDocument: 'after' });
+  if (!file.value) {
     return res.status(404).json({ error: 'File not found' });
   }
-  res.status(200).send(file['value']);
+  return res.status(200).send({
+    id: file._id,
+    userId: file.userId,
+    type: file.type,
+    name: file.name,
+    parentId: file.parentId,
+    localPath: file.localPath,
+  });
 }
 
 export async function putUnpublish(req, res) {
@@ -184,14 +198,25 @@ export async function putUnpublish(req, res) {
   const file = await dbClient.db.collection('files').findOneAndUpdate({
     _id: ObjectId(req.params.id),
     userId: ObjectId(userId),
-  }, {$set: {'isPublic': false}}, { returnDocument: 'after' });
+  }, { $set: { isPublic: false } }, { returnDocument: 'after' });
   if (!file) {
     return res.status(404).json({ error: 'File not found' });
   }
-  res.status(200).send(file);
+  return res.status(200).send({
+    id: file._id,
+    userId: file.userId,
+    type: file.type,
+    name: file.name,
+    parentId: file.parentId,
+    localPath: file.localPath,
+  });
 }
 // curl 0.0.0.0:5000/connect -H "Authorization: Basic Ym9iQGR5bGFuLmNvbTp0b3RvMTIzNCE=" ; echo ""
 // curl -XGET 0.0.0.0:5000/files -H "X-Token: 709428f3-0dfd-401b-9874-5b4b34d29371" ; echo ""
 // 66846a466532e260888e68c4
-// curl -XPUT 0.0.0.0:5000/files/66846a466532e260888e68c4/publish -H "X-Token: 
+// curl -XPUT 0.0.0.0:5000/files/66846a466532e260888e68c4/publish -H "X-Token:
 // 709428f3-0dfd-401b-9874-5b4b34d29371" ; echo
+// curl -XGET 0.0.0.0:5000/files/66846a466532e260888e68c4 -H "X-Token:
+// f21fb953-16f9-46ed-8d9c-84c6450ec80f" ; echo ""
+// curl -XGET 0.0.0.0:5000/files/66846a466532e260888e68c4 -H "X-Token:
+// 709428f3-0dfd-401b-9874-5b4b34d29371" ; echo ""\
