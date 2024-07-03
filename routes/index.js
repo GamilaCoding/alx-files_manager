@@ -5,7 +5,6 @@ import * as AuthController from '../controllers/AuthController';
 import * as UsersController from '../controllers/UsersController';
 import * as FilesController from '../controllers/FilesController';
 
-
 const injectRoutes = (api) => {
   api.get('/status', AppController.getStatus);
   api.get('/stats', AppController.getStats);

@@ -24,7 +24,7 @@ export async function postNew(req, res) {
   });
 
   const { insertedId } = insertionResult;
-  res.status(201).json({ _id: insertedId, email });
+  return res.status(201).json({ _id: insertedId, email });
 }
 
 export async function getMe(req, res) {
@@ -40,7 +40,7 @@ export async function getMe(req, res) {
   if (!user) {
     res.status(401).json({ error: 'Unauthorized' });
   }
-  res.json({
+  return res.json({
     id: userId,
     email: user.email,
   });

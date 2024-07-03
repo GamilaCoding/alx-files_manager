@@ -83,13 +83,13 @@ export async function postUpload(req, res) {
   if (type !== 'folder') {
     sendObject.localPath = dataFiles.localPath;
   }
-  res.status(201).json(sendObject);
+  return res.status(201).json(sendObject);
 }
 
 export async function getShow(req, res) {
   const xToken = req.headers['x-token'];
   if (!xToken) {
-    return res.status(401).json({ error: 'Unauthorized' });
+    res.status(401).json({ error: 'Unauthorized' });
   }
   const userId = await redisClient.get(`auth_${xToken}`);
   if (!userId) {
@@ -99,14 +99,14 @@ export async function getShow(req, res) {
   if (!user) {
     res.status(401).json({ error: 'Unauthorized' });
   }
-  const file = await dbClient.db.collection('files').find({
+  const file = await dbClient.db.collection('files').findOne({
     _id: ObjectId(req.params.id),
     userId: ObjectId(userId),
   });
   if (!file) {
-    res.status(404).json({ error: 'File not found' });
+    return res.status(404).json({ error: 'File not found' });
   }
-  res.status(200).json(file);
+  return res.status(200).json(file);
 }
 
 export async function getIndex(req, res) {
@@ -128,13 +128,6 @@ export async function getIndex(req, res) {
   const { parentId = 0, page = 0 } = req.query;
   const pageSize = 20;
   const skip = page * pageSize;
-
-  const parentQuery = { parentId: ObjectId(parentId) };
-  const parentLinkedUser = await dbClient.db.collection('files').findOne(parentQuery);
-
-  if (!parentLinkedUser) {
-    return res.json([]);
-  }
 
   const queryFilesResult = await dbClient.db.collection('files')
     .find({
