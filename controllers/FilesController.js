@@ -44,7 +44,7 @@ export async function postUpload(req, res) {
     userId: user._id,
     type,
     name,
-    parentId: parentId ? ObjectId(parentId) : parentId,
+    parentId: parentId || 0,
     isPublic: isPublic || false,
   };
   if (type !== 'folder') {
@@ -78,10 +78,11 @@ export async function postUpload(req, res) {
     name,
     type,
     isPublic,
-    parentId
+    parentId: parentId || 0,
   };
   return res.status(201).json(sendObject);
 }
+
 
 export async function getShow(req, res) {
   const xToken = req.headers['x-token'];
@@ -101,10 +102,11 @@ export async function getShow(req, res) {
     userId: ObjectId(userId),
   });
   if (!file) {
-    return res.status(404).json({ error: 'File not found' });
+    return res.status(404).json({ error: 'Not found' });
   }
   return res.status(200).json(file);
 }
+
 export async function getIndex(req, res) {
   const xToken = req.headers['x-token'];
   if (!xToken) {
@@ -157,7 +159,7 @@ export async function putPublish(req, res) {
     userId: ObjectId(userId),
   }, {$set: { isPublic: true }});
   if (!updateResult.value) {
-    return res.status(404).json({ error: 'File not found' });
+    return res.status(404).json({ error: 'Not found' });
   }
   const file = {
     id: updateResult.value._id,
@@ -190,7 +192,7 @@ export async function putUnpublish(req, res) {
     userId: ObjectId(userId),
   }, { $set: { isPublic: false } });
   if (!updateResult.value) {
-    return res.status(404).json({ error: 'File not found' });
+    return res.status(404).json({ error: 'Not found' });
   }
   const file = {
     id: updateResult.value._id,
@@ -202,8 +204,5 @@ export async function putUnpublish(req, res) {
   };
   return res.status(200).json(file);
 }
-// b0af7fb3-c0be-4be6-9669-31853f5cab25
-// curl -XGET 0.0.0.0:5000/files -H "X-Token: b0af7fb3-c0be-4be6-9669-31853f5cab25" ; echo ""
-// curl -XPUT 0.0.0.0:5000/files/66846b43bf859764a71d5ed7/publish -H "X-Token: b0af7fb3-c0be-4be6-9669-31853f5cab25" ; echo ""
-// curl -XPUT 0.0.0.0:5000/files/66846b43bf859764a71d5ed7/unpublish -H "X-Token: b0af7fb3-c0be-4be6-9669-31853f5cab25" ; echo ""
-// curl -XPOST 0.0.0.0:5000/files -H "X-Token: b0af7fb3-c0be-4be6-9669-31853f5cab25" -H "Content-Type: application/json" -d '{ "name": "myText.txt", "type": "file", "data": "SGVsbG8gV2Vic3RhY2shCg==" }' ; echo ""
+// 088f7184-6ef5-41d7-b890-9f567fb7c0fd"
+// curl -XGET 0.0.0.0:5000/files/6685907738775618b2ef9aac -H "X-Token: 088f7184-6ef5-41d7-b890-9f567fb7c0fd" ; echo ""
